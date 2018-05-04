@@ -11,13 +11,25 @@ import UIKit
 
 class MasterViewController: UITableViewController {
 
+    struct Article : Codable {
+        var id: Int
+        var name: String
+        var url: String
+        var date: String
+        var board_id: Int
+        var created_at: String
+        var updated_at: String
+    }
+
     var detailViewController: DetailViewController? = nil
     var objects = [Any]()
 
+    var articles: [Article] = []
 
 
     override func viewDidLoad() {
     super.viewDidLoad()
+    getArticlesList()
     // Do any additional setup after loading the view, typically from a nib.
     navigationItem.leftBarButtonItem = editButtonItem
 
@@ -80,18 +92,16 @@ class MasterViewController: UITableViewController {
 
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-
-    let object = objects[indexPath.row] as! NSDate
-    cell.textLabel!.text = object.description
-
-    return cell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let object = objects[indexPath.row] as! NSDate
+        cell.textLabel!.text = articles[0].name//object.description
+        return cell
     }
 
 
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
     // Return false if you do not want the specified item to be editable.
-    return true
+    return false
 
     }
 
@@ -106,6 +116,31 @@ class MasterViewController: UITableViewController {
 
     }
 
+    func getArticlesList() {
+
+        var articlesJSON: [Article] = []
+        let APIUrl = "http://127.0.0.1:3000/articles"
+
+        let config = URLSessionConfiguration.default
+        let session = URLSession(configuration: config)
+        guard let url = URL(string: APIUrl) else {return}
+
+        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if error != nil {
+                print(error)
+            }
+
+            guard let jsonData = data else {
+                session.invalidateAndCancel()
+                return
+            }
+            let articlesJSON = try? JSONDecoder().decode([Article].self, from: jsonData)
+
+            self.articles = articlesJSON!
+        }
+
+        task.resume()
+    }
 
 
 }
