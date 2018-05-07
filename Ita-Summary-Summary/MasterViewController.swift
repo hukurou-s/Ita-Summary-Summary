@@ -8,21 +8,31 @@
 
 import UIKit
 
+struct Article : Codable {
+    var id: Int
+    var name: String
+    var url: String
+    var date: String
+    var board_id: Int
+    var created_at: String
+    var updated_at: String
+
+    init() {
+        id = 0
+        name = ""
+        url = ""
+        date = ""
+        board_id = 0
+        created_at = ""
+        updated_at = ""
+    }
+}
 
 class MasterViewController: UITableViewController {
 
-    struct Article : Codable {
-        var id: Int
-        var name: String
-        var url: String
-        var date: String
-        var board_id: Int
-        var created_at: String
-        var updated_at: String
-    }
+
 
     var detailViewController: DetailViewController? = nil
-    var objects = [Any]()
 
     var articles: [Article] = []
 
@@ -57,7 +67,8 @@ class MasterViewController: UITableViewController {
 
     @objc
     func insertNewObject(_ sender: Any) {
-    objects.insert(NSDate(), at: 0)
+    //objects.insert(NSDate(), at: 0)
+    articles.insert(Article(), at: 0)
     let indexPath = IndexPath(row: 0, section: 0)
     tableView.insertRows(at: [indexPath], with: .automatic)
 
@@ -69,9 +80,9 @@ class MasterViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     if segue.identifier == "showDetail" {
         if let indexPath = tableView.indexPathForSelectedRow {
-            let object = objects[indexPath.row] as! NSDate
+            let article = articles[indexPath.row] as! Article
             let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
-            controller.detailItem = object
+            controller.detailItem = article
             controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
             controller.navigationItem.leftItemsSupplementBackButton = true
         }
@@ -87,14 +98,15 @@ class MasterViewController: UITableViewController {
 
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return objects.count
+    return articles.count
     }
 
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let object = objects[indexPath.row] as! NSDate
-        cell.textLabel!.text = articles[0].name//object.description
+        if articles.count > 0 {
+            cell.textLabel?.text = articles[indexPath.row].name
+        }
         return cell
     }
 
@@ -108,7 +120,7 @@ class MasterViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
     if editingStyle == .delete {
-        objects.remove(at: indexPath.row)
+        articles.remove(at: indexPath.row)
         tableView.deleteRows(at: [indexPath], with: .fade)
     } else if editingStyle == .insert {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
@@ -137,6 +149,7 @@ class MasterViewController: UITableViewController {
             let articlesJSON = try? JSONDecoder().decode([Article].self, from: jsonData)
 
             self.articles = articlesJSON!
+
         }
 
         task.resume()
