@@ -7,19 +7,29 @@
 //
 
 import UIKit
+import WebKit
 
-
-class DetailViewController: UIViewController {
+class DetailViewController: UIViewController, WKUIDelegate {
 
     @IBOutlet weak var detailDescriptionLabel: UILabel!
+    
+    @IBOutlet var webView: WKWebView!
 
-
-
+    override func loadView() {
+        let webConfiguration = WKWebViewConfiguration()
+        webView = WKWebView(frame: .zero, configuration: webConfiguration)
+        webView.uiDelegate = self
+        view = webView
+    }
+    
     func configureView() {
     // Update the user interface for the detail item.
-    if let detail = detailItem {
-        if let label = detailDescriptionLabel {
-            label.text = detail.url
+    if let article = detailArticle {
+        if let articleView = webView {
+            let articleURL = URL(string: article.url)
+            //let articleURL = NSURL(string: "https://google.co.jp")
+            let urlRequest = URLRequest(url: articleURL!)
+            articleView.load(urlRequest)
         }
     }
     }
@@ -38,7 +48,7 @@ class DetailViewController: UIViewController {
     }
 
 
-    var detailItem: Article? {
+    var detailArticle: Article? {
     didSet {
         // Update the view.
         configureView()
