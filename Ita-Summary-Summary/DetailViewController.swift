@@ -27,7 +27,6 @@ class DetailViewController: UIViewController, WKUIDelegate {
     if let article = detailArticle {
         if let articleView = webView {
             let articleURL = URL(string: article.url)
-            //let articleURL = NSURL(string: "https://google.co.jp")
             let urlRequest = URLRequest(url: articleURL!)
             articleView.load(urlRequest)
         }
